@@ -7,5 +7,5 @@ inside this (/server) folder
             WebSocket server running on port 8080
 
 
-[<img src="https://cdn.gomix.com/2bdfb3f8-05ef-4035-a06e-2043962a3a13%2Fremix-button.svg" width="163px" />](https://glitch.com/edit/#!/import/github/rajeendra/react_real_time/server)
+[<img src="https://cdn.gomix.com/2bdfb3f8-05ef-4035-a06e-2043962a3a13%2Fremix-button.svg" width="163px" />](https://glitch.com/edit/#!/import/github/rajeendra/react_real_time_server)
 
