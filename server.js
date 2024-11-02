@@ -1,25 +1,66 @@
-const WebSocket = require('ws');
-// Create a WebSocket server that listens on port 8080. This server will accept WebSocket connections on this port.
-const wss = new WebSocket.Server({ port: 8080 });
+// HTTP Server:
+const express = require("express");
+const os = require("os");
+const app = express();
 
-// Listen for 'connection' events on the WebSocket server. These events are emitted whenever a new client connects to the server.
-wss.on('connection', ws => {
-    console.log('New client connected!');
+// This will serve the static files in the /public folder on our server
+app.use(express.static("public"));
 
-    // Use setInterval to create a loop that executes the given function every 3000 milliseconds (3 seconds).
-    setInterval(() => {
-        // Create an object named 'data' with two properties:
-        // 'value' - a random number between 0 and 100,
-        // 'timestamp' - the current date and time.
-        const data = {
-            value: Math.random() * 100,
-            timestamp: new Date()
-        };
-
-        // Convert the 'data' object to a JSON string and send it to the connected client.
-        // The 'ws.send' method is used to send data to a client through the WebSocket connection.
-        ws.send(JSON.stringify(data));
-    }, 3000); // Update every second
+const server = app.listen(process.env.PORT, function () {
+//const server = app.listen(8080, function () {
+  console.log("app address is " + os.hostname());
+  console.log("app is listening on port " + server.address().port);
 });
 
-console.log('WebSocket server running on port 8080');
+// Websocket Server:
+// We are using the external library 'ws' to set up the websockets on the server
+// https://www.npmjs.com/package/ws
+// In our code this is stored in the variable WebSocket.
+var WebSocket = require("ws");
+
+// Connect our Websocket server to our server variable to serve requests on the same port:
+var wsServer = new WebSocket.Server({ server });
+
+// This function will send a message to all clients connected to the websocket:
+function broadcast(data) {
+  wsServer.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
+    }
+  });
+}
+
+// This outer function will run each time the Websocket
+// server connects to a new client:
+wsServer.on("connection", (ws) => {
+    // We will store the id for this connection in the id property.
+    ws.id = "";
+
+    // This function will run every time the server recieves a message with that client.
+    //   ws.on("message", (data) => {
+    //     Broadcast the received message back to all clients.
+    //     console.log("Message Received:");
+    //     console.log(data);
+    //     ws.id = JSON.parse(data).color;
+    //     console.log("from connection Id:", ws.id);
+    //     broadcast(data);
+    //   });
+
+    //   ws.on("close", () => {
+    //     console.log("Disconnected:", ws.id);
+    //     // Here you could send a message to other clients that
+    //     // this client has disconnected.
+    //   });
+
+
+    setInterval(() => {
+      const data = {
+        value: Math.random() * 100,
+        timestamp: new Date(),
+      };
+
+      //broadcast(data);
+      broadcast(JSON.stringify(data));
+    }, 3000);
+
+});
