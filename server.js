@@ -22,12 +22,26 @@ var WebSocket = require("ws");
 var wsServer = new WebSocket.Server({ server });
 
 // This function will send a message to all clients connected to the websocket:
-function broadcast(data) {
-  wsServer.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(data);
-    }
-  });
+function broadcastToAll(data) {
+    const dataJsonString = data.toString();
+    const dataJson = JSON.parse(dataJsonString);
+     
+    console.log(wsServer.clients.size)  
+   
+    wsServer.clients.forEach((client) => {
+      //console.log(JSON.stringify(client))  
+    });
+
+    let sent = false;
+    wsServer.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN && !sent ) {
+
+            if (dataJson.client == "WA2934789283") {
+              client.send(data);
+              console.log("Message sent..");
+            } 
+        }
+    });
 }
 
 // This outer function will run each time the Websocket
@@ -36,31 +50,23 @@ wsServer.on("connection", (ws) => {
     // We will store the id for this connection in the id property.
     ws.id = "";
 
-    // This function will run every time the server recieves a message with that client.
-    //   ws.on("message", (data) => {
-    //     Broadcast the received message back to all clients.
-    //     console.log("Message Received:");
-    //     console.log(data);
-    //     ws.id = JSON.parse(data).color;
-    //     console.log("from connection Id:", ws.id);
-    //     broadcast(data);
-    //   });
+    //This function will run every time the server recieves a message with that client.
+      ws.on("message", (data) => {
+        //Broadcast the received message back to all clients.
 
-    //   ws.on("close", () => {
-    //     console.log("Disconnected:", ws.id);
-    //     // Here you could send a message to other clients that
-    //     // this client has disconnected.
-    //   });
+        console.log("Message Received:", ws.id);
+        // console.log(data.toString())
 
+        // broadcast to all the client the server has been connected
+        // broadcastToAll(data.toString());
 
-    setInterval(() => {
-      const data = {
-        value: Math.random() * 100,
-        timestamp: new Date(),
-      };
+        // broadcast only to the client which the message has been received
+        ws.send(data.toString());
+      });
 
-      //broadcast(data);
-      broadcast(JSON.stringify(data));
-    }, 3000);
-
+      ws.on("close", () => {
+        console.log("Disconnected:", ws.id);
+        // Here you could send a message to other clients that
+        // this client has disconnected.
+      });
 });
